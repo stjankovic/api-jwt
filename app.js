@@ -5,6 +5,8 @@ const cors = require('cors');
 
 const db = require('./_config/keys').mongoURI; 
 const UserController = require('./_api/user/Control');
+const AuthController = require('./_auth/Control')
+
 const port = process.env.PORT || 5000;
 const app = express();
 
@@ -16,6 +18,7 @@ mongoose
 	.then(() => console.log('Mongo connected'))
 	.catch(err => console.log(err));
 
+app.use('/auth', AuthController)
 app.use('/users', UserController);
 	
 app.listen(port, () => console.log(`Server running on localhost:${port}`));
