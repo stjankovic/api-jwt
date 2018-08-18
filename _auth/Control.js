@@ -15,7 +15,7 @@ const verifyToken = require('./Verify');
 //REGISTER//
 router.post('/register', function (req, res) {
 
-	let hashedPassword = bcrypt.hashSync(req.body.password, 8);
+	const hashedPassword = bcrypt.hash('myPassword', 10, () => hashedPassword);
 
 	User.create({
 		username: req.body.username,
@@ -27,14 +27,14 @@ router.post('/register', function (req, res) {
     let token = jwt.sign({ id: user._id }, config.secret, {
       expiresIn: 86400 // 24h
     });
-		res.status(200).send({ auth: true, token: token });
+		res.status(200).send({ auth: true, token });
 		console.log('Request to /register/ POST')
   }); 
 });
 
 //Get current user//
 router.get('/me', verifyToken, function(req, res, next) {
-  User.findById(req.userId, { password: 0 }, function (err, user) {
+  User.findById(req.userId, { password: 0 }, (err, user) => {
     if (err) return res.status(500).send(`Server problem`);
     if (!user) return res.status(404).send(`!user`);
     
@@ -42,10 +42,9 @@ router.get('/me', verifyToken, function(req, res, next) {
   });
 });
 
-
 //LOGIN//
 router.post('/login', function(req, res) {
-  User.findOne({ username: req.body.username }, function (err, user) {
+  User.findOne({ username: req.body.username }, (err, user) => {
     if (err) return res.status(500).send(`Server problem`);
     if (!user) return res.status(404).send(`!user`);
     var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
@@ -53,17 +52,15 @@ router.post('/login', function(req, res) {
     var token = jwt.sign({ id: user._id }, config.secret, {
       expiresIn: 86400 // expires in 24 hours
     });
-		res.status(200).send({ auth: true, token: token });
+		res.status(200).send({ auth: true, token });
 		console.log('Request to /login/ POST')
   });
 });
 
 //LOGOUT//
-router.get('/logout', function(req, res) {
+router.get('/logout', (req, res) => {
 	res.status(200).send({ auth: false, token: null });
 	console.log('Request to /logout/ GET')
 });
-
-
 
 module.exports = router;
